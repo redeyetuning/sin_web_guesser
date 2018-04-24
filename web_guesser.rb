@@ -3,13 +3,10 @@ require 'sinatra/reloader'
 
 @@secret_number = rand(101)
 @@message = ""
-number = ""
 bg_colour = "none"
 @@guesses = 5
 
-def set_number
-	"The secretT NUMBER is #{@@secret_number}" if @@message == "You got it right"  
-end
+
 
 def set_bg_colour
 	case 
@@ -22,7 +19,8 @@ end
 
 def check_guess(guess)
 	@@guesses -= 1
-	if guess == ""
+	if guess.to_i == 0
+		message = ""
 	elsif guess.to_i > @@secret_number
 		guess.to_i - @@secret_number > 5 ? "Way too high!" : "Too high!"
 	elsif guess.to_i < @@secret_number
@@ -36,16 +34,20 @@ def guess_0
 	
 	if @@guesses == 0 or @@guesses == "x"
 		@@secret_number = rand(101)
-		@@guesses == 0 ? @@message = "You ran out of guesses</br></br>A new number has been generated" : @@message = "You got it right!</br></br> A new number has been generated" 	
+		@@guesses == 0 ? @@message = "You ran out of guesses</br></br>A new number has been generated" : @@message = "You got it right the number was #{@@secret_number}!</br></br> A new number has been generated" 	
 	  @@guesses = 5
 	else ""
 	end
 end
 
+def check_cheat
+	@@message += " </br></br>SECRET: #{@@secret_number}" if params["cheat"] == "true"
+end
+
 get '/' do
 	@@message = check_guess(params["guess"])
-	number = set_number
 	guess_0
 	bg_colour = set_bg_colour
-	erb :index, :locals => {:message => @@message, :number => number, :bg_colour => bg_colour}
+	check_cheat
+	erb :index, :locals => {:message => @@message, :bg_colour => bg_colour}
 end
